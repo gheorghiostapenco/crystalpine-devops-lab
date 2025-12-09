@@ -17,6 +17,7 @@ permissions:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}  # ghcr.io/OWNER/REPO
+  APP_VERSION: "0.1.0"
 
 jobs:
   test:
@@ -106,6 +107,8 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           IMAGE: ${{ needs.build_and_push.outputs.image }}
+          APP_VERSION: ${{ env.APP_VERSION }}
+          GIT_COMMIT: ${{ github.sha }}
         run: |
           ssh -i ~/.ssh/id_ci "${SSH_USER}@${SSH_HOST}" "
             set -euo pipefail
@@ -124,5 +127,5 @@ jobs:
             fi
 
             echo '[deploy] Running deploy script...'
-            IMAGE='${IMAGE}' ./deploy/apply.sh
+            APP_VERSION='${APP_VERSION}' GIT_COMMIT='${GIT_COMMIT}' IMAGE='${IMAGE}' ./deploy/apply.sh
           "

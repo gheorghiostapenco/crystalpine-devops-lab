@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Ожидаем, что IMAGE придёт из GitHub Actions как переменная окружения
-: "${IMAGE:?IMAGE environment variable must be set, e.g. ghcr.io/OWNER/REPO:tag}"
+# Обязательно должен быть IMAGE (от GitHub Actions или вручную)
+: "${IMAGE:?IMAGE environment variable must be set, e.g. ghcr.io/gheorghiostapenco/crystalpine-devops-lab:tag}"
+
+# Необязательные переменные, с дефолтами
+APP_VERSION="${APP_VERSION:-0.1.0}"
+GIT_COMMIT="${GIT_COMMIT:-unknown}"
 
 APP_NAME="crystalpine-backend"
 APP_PORT="18080"
@@ -11,6 +15,8 @@ ROUTER_NAME="crystalpine-lab"
 SERVICE_NAME="crystalpine-lab"
 
 echo "[deploy] Using image: ${IMAGE}"
+echo "[deploy] App version: ${APP_VERSION}"
+echo "[deploy] Git commit: ${GIT_COMMIT}"
 
 echo "[deploy] Pulling latest image..."
 sudo docker pull "${IMAGE}"
@@ -28,6 +34,8 @@ sudo docker run -d \
   -p ${APP_PORT}:8000 \
   --restart unless-stopped \
   -e APP_ENV=prod \
+  -e APP_VERSION="${APP_VERSION}" \
+  -e GIT_COMMIT="${GIT_COMMIT}" \
   --label "traefik.enable=true" \
   --label "traefik.http.routers.${ROUTER_NAME}.entrypoints=websecure" \
   --label "traefik.http.routers.${ROUTER_NAME}.rule=Host(\"lab.crystalpine.dev\")" \
