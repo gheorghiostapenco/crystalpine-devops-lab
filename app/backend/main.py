@@ -28,4 +28,4 @@ def version():
 
 @app.get("/")
 def root():
-    return {"message": "CrystalPine DevOps Lab backend is up"}
+    return {"message": "CrystalPine DevOps Lab backend is up - CI/CD test 1"}
